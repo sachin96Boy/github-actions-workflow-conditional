@@ -1,4 +1,3 @@
-import React from "react";
 import HelpBox from "./HelpBox";
 
 const HELP_ITEMS = [
