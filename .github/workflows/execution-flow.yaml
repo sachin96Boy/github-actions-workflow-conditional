@@ -18,6 +18,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      build-artifacts: ${{ steps.pubish-artifacts.outputs.artifact-name }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -25,6 +27,11 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+
+      - name: publish js artifacts
+        id: publish-artifacts
+        run: find ./dist -type f -exec sh -c 'mkdir -p "$(dirname "publish-artifacts/{}")" && cp "{}" "publish-artifacts/{}"' \;
+
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -38,5 +45,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts
+      - name: output content
+        run: |
+          echo "Artifacts downloaded:"
+          ls -R build-artifacts
+      - name: get file name
+        run: |
+          echo "${{ needs.build.outputs.build-artifacts }}"
       - name: Deploy
         run: echo "Deploying..."
